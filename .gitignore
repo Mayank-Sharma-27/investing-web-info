@@ -1,0 +1,7 @@
+# .gitignore
+
+# Ignore .env files containing sensitive environment variables
+.env
+
+# Ignore Python virtual environments
+venv/
