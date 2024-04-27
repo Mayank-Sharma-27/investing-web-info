@@ -15,9 +15,6 @@ def scrape_and_save_economic_data(csv_file_prefix='economic_calendar_data'):
     """
     Scrapes economic data for each filter in 'economicCalendarFilters', updates the 'IMP' column based on the number of 'grayFullBullishIcon',
     and saves it to CSV files in a folder named with today's date, except for the filter named 'Filters'.
-
-    Parameters:
-    csv_file_prefix (str): Prefix for the CSV file names to save the data.
     """
     # Setup Chrome options for headless execution
     chrome_options = Options()
@@ -54,8 +51,22 @@ def scrape_and_save_economic_data(csv_file_prefix='economic_calendar_data'):
             # Click the filter element
             driver.execute_script("arguments[0].click();", filter_element)
 
-            # Wait for the table to update
-            time.sleep(5)
+            # Wait for the table to update and scroll to load dynamic data
+            time.sleep(5)  # Initial wait for some data to load
+            last_height = driver.execute_script(
+                "return document.body.scrollHeight")
+            while True:
+                # Scroll down to bottom
+                driver.execute_script(
+                    "window.scrollTo(0, document.body.scrollHeight);")
+                # Wait to load page
+                time.sleep(3)
+                # Calculate new scroll height and compare with last scroll height
+                new_height = driver.execute_script(
+                    "return document.body.scrollHeight")
+                if new_height == last_height:
+                    break
+                last_height = new_height
 
             # Extract the table data
             table = WebDriverWait(driver, 10).until(
@@ -66,7 +77,6 @@ def scrape_and_save_economic_data(csv_file_prefix='economic_calendar_data'):
             df = pd.read_html(str(soup))[0]
 
             # Update the 'IMP' column based on the number of 'grayFullBullishIcon'
-            # Assuming 'IMP' is the third column (index 2)
             imp_column_index = 2
             for row in df.itertuples():
                 cell_html = soup.select_one(
