@@ -90,7 +90,7 @@ def scrape_and_save_economic_data(csv_file_prefix='economic_calendar_data'):
             html_content = table.get_attribute('outerHTML')
             soup = BeautifulSoup(html_content, 'html.parser')
             df = pd.read_html(str(soup))[0]
-            df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+            #df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
             df.dropna(axis=1, how='all')
 
             imp_column_index = 2
